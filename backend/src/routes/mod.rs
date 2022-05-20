@@ -63,7 +63,6 @@ pub async fn send(payload: Json<Payload>) -> Json<Response<()>> {
 #[post("/receive", data = "<payload>", format = "json")]
 pub async fn receive(payload: Json<Payload>) -> Json<Response<Payload>> {
     let payload = Json::into_inner(payload);
-
     let res = controllers::receive_payload(payload.code).await;
 
     match res {
