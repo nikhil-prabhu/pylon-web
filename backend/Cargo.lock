@@ -1412,6 +1412,8 @@ dependencies = [
 name = "pylon-web"
 version = "0.1.0"
 dependencies = [
+ "futures",
+ "lazy_static",
  "magic-wormhole",
  "rocket",
  "serde",
