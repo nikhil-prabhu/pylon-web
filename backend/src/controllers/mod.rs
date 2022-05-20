@@ -36,7 +36,6 @@ pub async fn gen_code() -> Result<String, Box<dyn Error>> {
 ///
 /// # Arguments
 ///
-/// * `pylon` - The pylon to use (must be in sender mode).
 /// * `payload` - The payload to send.
 pub async fn send_payload(mut payload: Payload) -> Result<(), Box<dyn Error>> {
     let mut pylon_map = PYLON_MAP.lock().await;
