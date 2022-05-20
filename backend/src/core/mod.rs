@@ -18,7 +18,7 @@ use crate::consts::{APP_ID, APP_VERSION, CODE_LENGTH};
 type FutureConn = Box<dyn Future<Output = Result<Wormhole, WormholeError>> + Unpin + Send + Sync>;
 
 /// An established wormhole connection.
-type Conn = Wormhole;
+type EstConn = Wormhole;
 
 /// A custom error type for Pylon errors.
 #[derive(Debug, Serialize)]
@@ -69,7 +69,7 @@ pub enum Mode {
 #[allow(clippy::large_enum_variant)]
 enum ConnType {
     FutureConn(FutureConn),
-    EstConn(Conn),
+    EstConn(EstConn),
 }
 
 /// An object that can send or receive messages using an encrypted wormhole tunnel.
