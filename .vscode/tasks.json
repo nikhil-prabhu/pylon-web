@@ -1,0 +1,61 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Pylon-Web: Build",
+			"type": "cargo",
+			"command": "build",
+			"problemMatcher": ["$rustc"],
+			"options": {
+				"cwd": "${workspaceFolder}/backend",
+			}
+		},
+		{
+			"label": "Pylon-Web: Build (Release)",
+			"type": "cargo",
+			"command": "build",
+			"problemMatcher": ["$rustc"],
+			"args": ["--release"],
+			"options": {
+				"cwd": "${workspaceFolder}/backend",
+			}
+		},
+		{
+			"label": "Pylon-Web: Run",
+			"type": "cargo",
+			"command": "run",
+			"problemMatcher": ["$rustc"],
+			"options": {
+				"cwd": "${workspaceFolder}/backend",
+			}
+		},
+		{
+			"label": "Pylon-Web: Run (Release)",
+			"type": "cargo",
+			"command": "run",
+			"problemMatcher": ["$rustc"],
+			"args": ["--release"],
+			"options": {
+				"cwd": "${workspaceFolder}/backend",
+			}
+		},
+		{
+			"label": "Pylon-Web: Test",
+			"type": "cargo",
+			"command": "test",
+			"problemMatcher": ["$rustc"],
+			"options": {
+				"cwd": "${workspaceFolder}/backend",
+			}
+		},
+		{
+			"label": "Pylon-Web: Clean",
+			"type": "cargo",
+			"command": "clean",
+			"problemMatcher": ["$rustc"],
+			"options": {
+				"cwd": "${workspaceFolder}/backend",
+			}
+		}
+	]
+}
