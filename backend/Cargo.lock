@@ -1417,6 +1417,7 @@ dependencies = [
  "magic-wormhole",
  "rocket",
  "serde",
+ "tokio",
 ]
 
 [[package]]
