@@ -13,13 +13,23 @@ function MessageContainer() {
     }
 
     function sendMessage() {
-        // send message
-        
-
-        // Add message to list and clear input
-        const newMsgList = msgList.concat({ message, id: uuidv4() });
-        setMessageList(newMsgList);
-        setMessage('');
+        // fetch the code for sending message
+        fetch("http://localhost:8000/code", {
+            method: "GET"
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data);
+            
+            // Add message to list and clear input
+            const newMsgList = msgList.concat({ message, id: uuidv4() });
+            setMessageList(newMsgList);
+            setMessage("");
+        })
+        .catch((error) => {
+            console.error("Error while fetching code");
+        })
+        // TODO: implement send message
     }
 
     function receiveMessage() {
