@@ -11,6 +11,7 @@ use serde::Serialize;
 pub mod consts;
 pub mod controllers;
 pub mod core;
+pub mod fairings;
 pub mod routes;
 
 /// A structured API response.
