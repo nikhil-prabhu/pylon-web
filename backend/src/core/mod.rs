@@ -134,7 +134,7 @@ impl Pylon {
     /// * `payload` - The payload to send (only required in Sender mode).
     pub async fn activate(
         self,
-        payload: Option<Payload>,
+        payload: Option<&Payload>,
     ) -> Result<Option<Payload>, Box<dyn Error>> {
         let payload = payload;
 
