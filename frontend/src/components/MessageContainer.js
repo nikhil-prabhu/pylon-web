@@ -18,9 +18,9 @@ function MessageContainer() {
             method: "GET"
         })
         .then(response => response.json())
-        .then(data => {
-            alert(data);
-            
+        .then(payload => {
+            alert(payload.data);
+
             // Add message to list and clear input
             const newMsgList = msgList.concat({ message, id: uuidv4() });
             setMessageList(newMsgList);

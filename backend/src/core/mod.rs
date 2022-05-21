@@ -41,7 +41,7 @@ impl Error for PylonError {}
 /// * `size` - The size/length of the message.
 /// * `code`- The wormhole code.
 /// * `time` - The time the message was sent.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Default, Debug)]
 pub struct Payload {
     pub message: Option<String>,
     pub size: Option<usize>,
@@ -134,7 +134,7 @@ impl Pylon {
     /// * `payload` - The payload to send (only required in Sender mode).
     pub async fn activate(
         self,
-        payload: Option<Payload>,
+        payload: Option<&Payload>,
     ) -> Result<Option<Payload>, Box<dyn Error>> {
         let payload = payload;
 
