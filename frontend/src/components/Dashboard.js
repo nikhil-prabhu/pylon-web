@@ -1,5 +1,6 @@
 import "./Dashboard.css";
 import Button from "./Button";
+import MessageContainer from "./messageContainer";
 
 function Dashboard(props) {
 	return (
@@ -9,6 +10,9 @@ function Dashboard(props) {
 			<div className="Dashboard-buttons">
 				<Button text="Send" />
 				<Button text="Receive" />
+			</div>
+			<div className="Message-container">
+			<MessageContainer />
 			</div>
 		</div >
 	);
