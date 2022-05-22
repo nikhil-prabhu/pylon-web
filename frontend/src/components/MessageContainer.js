@@ -20,16 +20,26 @@ function MessageContainer() {
         .then(response => response.json())
         .then(payload => {
             alert(payload.data);
-
+            // send message
+            fetch("http://localhost:8000/send", {
+                method: "POST",
+                body: JSON.stringify({code: payload.data}),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+        })
+        .then(response => response.json())
+        .then(() => {
             // Add message to list and clear input
             const newMsgList = msgList.concat({ message, id: uuidv4() });
             setMessageList(newMsgList);
             setMessage("");
         })
         .catch((error) => {
-            console.error("Error while fetching code");
-        })
-        // TODO: implement send message
+            console.error("Error while sending message");
+            alert("Error: Could not send message");
+        });
     }
 
     function receiveMessage() {
