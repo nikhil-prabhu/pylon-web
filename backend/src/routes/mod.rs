@@ -48,17 +48,17 @@ pub async fn code() -> CustomResponse<String> {
 ///
 /// * `payload` - The json payload containing the wormhole code and message to send.
 #[post("/send", data = "<payload>", format = "json")]
-pub async fn send(payload: Json<Payload>) -> CustomResponse<()> {
+pub async fn send(payload: Json<Payload>) -> CustomResponse<Payload> {
     let payload = Json::into_inner(payload);
     let res = controllers::send_payload(payload).await;
 
     match res {
-        Ok(_) => Custom(
+        Ok(payload) => Custom(
             Status::Ok,
             Json::from(Response {
                 code: 200,
                 message: None,
-                data: Some(()),
+                data: Some(payload),
             }),
         ),
         Err(e) => Custom(

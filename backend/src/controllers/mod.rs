@@ -41,7 +41,7 @@ pub async fn gen_code() -> Result<String, Box<dyn Error>> {
 /// # Arguments
 ///
 /// * `payload` - The payload to send.
-pub async fn send_payload(mut payload: Payload) -> Result<(), Box<dyn Error>> {
+pub async fn send_payload(mut payload: Payload) -> Result<Payload, Box<dyn Error>> {
     let mut pylon_map = PYLON_MAP.lock().await;
     let pylon = pylon_map.remove(&payload.code);
 
@@ -56,7 +56,7 @@ pub async fn send_payload(mut payload: Payload) -> Result<(), Box<dyn Error>> {
         pylon.activate(Some(&payload)).await.unwrap();
     }
 
-    Ok(())
+    Ok(payload)
 }
 
 /// Receives a payload through an encrypted wormhole tunnel.
