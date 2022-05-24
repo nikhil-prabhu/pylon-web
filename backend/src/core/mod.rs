@@ -11,6 +11,8 @@ use magic_wormhole::{AppConfig, AppID, Code, Wormhole, WormholeError};
 
 use serde::{Deserialize, Serialize};
 
+use unic_segment::Graphemes;
+
 use crate::consts::{APP_ID, APP_VERSION, CODE_LENGTH};
 
 /// A connection that hasn't yet been established.
@@ -47,6 +49,23 @@ pub struct Payload {
     pub length: Option<usize>,
     pub code: String,
     pub time: Option<SystemTime>,
+}
+
+impl From<(&str, &str)> for Payload {
+    /// Creates a Payload from a tuple.
+    ///
+    /// The first element is taken as the payload's message, and the second element is taken as the
+    /// wormhole code.
+    ///
+    /// * `values` - The tuple containing the payload's message and wormhole code.
+    fn from(values: (&str, &str)) -> Self {
+        Self {
+            message: Some(values.0.into()),
+            length: Some(Graphemes::new(values.0).count()),
+            code: values.1.into(),
+            time: Some(SystemTime::now()),
+        }
+    }
 }
 
 /// The Pylon mode.
