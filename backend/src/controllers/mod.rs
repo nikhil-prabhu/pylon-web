@@ -6,6 +6,8 @@ use std::time::SystemTime;
 
 use futures::lock::Mutex;
 
+use unic_segment::Graphemes;
+
 use crate::core::{Mode, Payload, Pylon, PylonError};
 
 lazy_static! {
@@ -45,7 +47,7 @@ pub async fn send_payload(mut payload: Payload) -> Result<(), Box<dyn Error>> {
         payload.time = Some(SystemTime::now());
 
         if let Some(message) = &payload.message {
-            payload.length = Some(message.len());
+            payload.length = Some(Graphemes::new(message).count())
         }
 
         pylon.activate(Some(&payload)).await.unwrap();
