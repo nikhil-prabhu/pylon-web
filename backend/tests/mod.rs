@@ -3,8 +3,13 @@
 #[cfg(test)]
 mod tests {
     use std::error::Error;
+    use std::sync::Arc;
 
     use pylon_web::core::{Mode, Payload, Pylon};
+
+    use futures::lock::Mutex;
+
+    use unic_segment::Graphemes;
 
     /// Tests whether the Pylon can generate a code when run in Sender mode.
     #[tokio::test]
@@ -25,22 +30,13 @@ mod tests {
     /// discretion advised.
     #[tokio::test]
     async fn test_payload_match() -> Result<(), Box<dyn Error>> {
-        use futures::lock::Mutex;
-        use std::sync::Arc;
-        use std::time::SystemTime;
-
         let sender = Pylon::new(Mode::Sender, None).await?;
         let code = sender.code.clone(); //? Is this clone needed?
         let msg = "Hello world";
         let sender_payload: Arc<Mutex<Payload>>;
 
         if let Some(code) = code {
-            sender_payload = Arc::new(Mutex::new(Payload {
-                message: Some(msg.into()),
-                size: Some(msg.len()),
-                time: Some(SystemTime::now()),
-                code: code.clone(),
-            }));
+            sender_payload = Arc::new(Mutex::new(Payload::from((msg, code.clone().as_str()))));
 
             //? Is this copy really needed?
             let payload_copy = Arc::clone(&sender_payload);
@@ -74,5 +70,47 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    /// Tests if a Payload can be created from a (&str, &str).
+    #[test]
+    fn test_payload_from() {
+        let msg = "Hello world";
+        let code = "1-hello-world";
+
+        // The `time` field will not be equal, since the exact creation time of the payload and derived payloads
+        // will vary. Hence, we set it to `None`, and only assert that the other fields are equal.
+        let payload = Payload {
+            message: Some(msg.into()),
+            length: Some(Graphemes::new(msg).count()),
+            code: code.into(),
+            time: None,
+        };
+        let derived_payload = Payload::from((msg, code));
+
+        assert_eq!(payload.message, derived_payload.message);
+        assert_eq!(payload.code, derived_payload.code);
+        assert_eq!(payload.length, derived_payload.length);
+    }
+
+    /// Tests whether a (&str, &str) can be converted to a Payload.
+    #[test]
+    fn test_tuple_into() {
+        let msg = "Hello world";
+        let code = "1-hello-world";
+
+        // The `time` field will not be equal, since the exact creation time of the payload and derived payloads
+        // will vary. Hence, we set it to `None`, and only assert that the other fields are equal.
+        let payload = Payload {
+            message: Some(msg.into()),
+            length: Some(Graphemes::new(msg).count()),
+            code: code.into(),
+            time: None,
+        };
+        let derived_payload: Payload = (msg, code).into();
+
+        assert_eq!(payload.message, derived_payload.message);
+        assert_eq!(payload.code, derived_payload.code);
+        assert_eq!(payload.length, derived_payload.length);
     }
 }
