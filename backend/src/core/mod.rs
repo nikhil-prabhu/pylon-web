@@ -38,13 +38,13 @@ impl Error for PylonError {}
 /// # Fields
 ///
 /// * `message` - The message to send (sender mode)/that was received (receiver mode).
-/// * `size` - The size/length of the message.
+/// * `length` - The message length.
 /// * `code`- The wormhole code.
 /// * `time` - The time the message was sent.
 #[derive(Serialize, Deserialize, PartialEq, Default, Debug)]
 pub struct Payload {
     pub message: Option<String>,
-    pub size: Option<usize>,
+    pub length: Option<usize>,
     pub code: String,
     pub time: Option<SystemTime>,
 }

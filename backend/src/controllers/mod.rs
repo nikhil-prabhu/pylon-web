@@ -45,7 +45,7 @@ pub async fn send_payload(mut payload: Payload) -> Result<(), Box<dyn Error>> {
         payload.time = Some(SystemTime::now());
 
         if let Some(message) = &payload.message {
-            payload.size = Some(message.len());
+            payload.length = Some(message.len());
         }
 
         pylon.activate(Some(&payload)).await.unwrap();
