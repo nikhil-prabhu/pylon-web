@@ -13,6 +13,8 @@ use serde::{Deserialize, Serialize};
 
 use unic_segment::Graphemes;
 
+use sha256::digest;
+
 use crate::consts::{APP_ID, APP_VERSION, CODE_LENGTH};
 
 /// A connection that hasn't yet been established.
@@ -43,12 +45,14 @@ impl Error for PylonError {}
 /// * `length` - The message length.
 /// * `code`- The wormhole code.
 /// * `time` - The time the message was sent.
+/// * `checksum` - The SHA256 checksum of the message.
 #[derive(Serialize, Deserialize, PartialEq, Default, Debug)]
 pub struct Payload {
     pub message: Option<String>,
     pub length: Option<usize>,
     pub code: String,
     pub time: Option<SystemTime>,
+    pub checksum: Option<String>,
 }
 
 impl From<(&str, &str)> for Payload {
@@ -64,6 +68,7 @@ impl From<(&str, &str)> for Payload {
             length: Some(Graphemes::new(values.0).count()),
             code: values.1.into(),
             time: Some(SystemTime::now()),
+            checksum: Some(digest(values.0)),
         }
     }
 }

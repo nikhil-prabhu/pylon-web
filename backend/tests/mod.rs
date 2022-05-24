@@ -11,6 +11,8 @@ mod tests {
 
     use unic_segment::Graphemes;
 
+    use sha256::digest;
+
     /// Tests whether the Pylon can generate a code when run in Sender mode.
     #[tokio::test]
     async fn test_code_gen() -> Result<(), Box<dyn Error>> {
@@ -85,6 +87,7 @@ mod tests {
             length: Some(Graphemes::new(msg).count()),
             code: code.into(),
             time: None,
+            checksum: Some(digest(msg)),
         };
         let derived_payload = Payload::from((msg, code));
 
@@ -106,6 +109,7 @@ mod tests {
             length: Some(Graphemes::new(msg).count()),
             code: code.into(),
             time: None,
+            checksum: Some(digest(msg)),
         };
         let derived_payload: Payload = (msg, code).into();
 
