@@ -5,7 +5,14 @@ mod tests {
     use std::error::Error;
     use std::sync::Arc;
 
+    use rocket::http::Status;
+    use rocket::local::asynchronous::Client;
+    use rocket::log::LogLevel;
+    use rocket::Config;
+    use rocket::{routes, uri};
+
     use pylon_web::core::{Mode, Payload, Pylon};
+    use pylon_web::routes;
 
     use futures::lock::Mutex;
 
@@ -116,5 +123,84 @@ mod tests {
         assert_eq!(payload.message, derived_payload.message);
         assert_eq!(payload.code, derived_payload.code);
         assert_eq!(payload.length, derived_payload.length);
+    }
+
+    /// Tests the high-level API endpoints' responses.
+    #[tokio::test]
+    async fn test_api_endpoints() -> Result<(), Box<dyn Error>> {
+        use pylon_web::Response;
+
+        // Turn off Rocket's debug logging, since it would pollute the test's output.
+        let conf = Config {
+            log_level: LogLevel::Off,
+            ..Config::debug_default()
+        };
+        let client = Client::tracked(
+            rocket::build()
+                .configure(conf)
+                .mount("/", routes![routes::code, routes::send, routes::receive]),
+        )
+        .await
+        .expect("invalid rocket instance");
+
+        // Test `/code` endpoint and store its status and body (to retrieve the generated code).
+        let resp = client.get(uri!(routes::code)).dispatch().await;
+        let status = resp.status();
+        let body: Option<Response<String>> = resp.into_json().await;
+
+        assert_eq!(status, Status::Ok);
+
+        if let Some(body) = body {
+            if let Some(code) = body.data {
+                // Wrap client in an Arc, to make it shareable between threads.
+                let arc_client = Arc::new(client);
+                let code_copy = code.clone();
+
+                // `/send` endpoint thread.
+                let client = Arc::clone(&arc_client);
+                let send_handle = tokio::spawn(async move {
+                    let payload: Payload = ("Hello world", code_copy.as_str()).into();
+                    let resp = client
+                        .post(uri!(routes::send))
+                        .json(&payload)
+                        .dispatch()
+                        .await;
+
+                    assert_eq!(resp.status(), Status::Ok);
+
+                    // Test response when payload not sent.
+                    let resp = client.post(uri!(routes::send)).dispatch().await;
+
+                    assert_ne!(resp.status(), Status::Ok);
+                });
+
+                // `/receive` endpoint thread.
+                let client = Arc::clone(&arc_client);
+                let recv_handle = tokio::spawn(async move {
+                    let payload: Payload = ("", code.as_str()).into();
+                    let resp = client
+                        .post(uri!(routes::receive))
+                        .json(&payload)
+                        .dispatch()
+                        .await;
+
+                    assert_eq!(resp.status(), Status::Ok);
+
+                    // Test response when payload not sent.
+                    let resp = client.post(uri!(routes::send)).dispatch().await;
+
+                    assert_ne!(resp.status(), Status::Ok);
+                });
+
+                send_handle.await.unwrap();
+                recv_handle.await.unwrap();
+            } else {
+                return Err("Code generation failed".into());
+            }
+        } else {
+            return Err("Received empty response".into());
+        }
+
+        Ok(())
     }
 }
