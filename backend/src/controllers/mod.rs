@@ -6,6 +6,10 @@ use std::time::SystemTime;
 
 use futures::lock::Mutex;
 
+use unic_segment::Graphemes;
+
+use sha256::digest;
+
 use crate::core::{Mode, Payload, Pylon, PylonError};
 
 lazy_static! {
@@ -37,7 +41,7 @@ pub async fn gen_code() -> Result<String, Box<dyn Error>> {
 /// # Arguments
 ///
 /// * `payload` - The payload to send.
-pub async fn send_payload(mut payload: Payload) -> Result<(), Box<dyn Error>> {
+pub async fn send_payload(mut payload: Payload) -> Result<Payload, Box<dyn Error>> {
     let mut pylon_map = PYLON_MAP.lock().await;
     let pylon = pylon_map.remove(&payload.code);
 
@@ -45,13 +49,14 @@ pub async fn send_payload(mut payload: Payload) -> Result<(), Box<dyn Error>> {
         payload.time = Some(SystemTime::now());
 
         if let Some(message) = &payload.message {
-            payload.size = Some(message.len());
+            payload.length = Some(Graphemes::new(message).count());
+            payload.checksum = Some(digest(message));
         }
 
         pylon.activate(Some(&payload)).await.unwrap();
     }
 
-    Ok(())
+    Ok(payload)
 }
 
 /// Receives a payload through an encrypted wormhole tunnel.

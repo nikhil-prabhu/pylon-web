@@ -8,6 +8,9 @@ extern crate lazy_static;
 
 use serde::Serialize;
 
+#[cfg(debug_assertions)]
+use serde::Deserialize;
+
 pub mod consts;
 pub mod controllers;
 pub mod core;
@@ -22,8 +25,9 @@ pub mod routes;
 /// * `message` - An optional message.
 /// * `data` - An optional data payload.
 #[derive(Serialize)]
+#[cfg_attr(debug_assertions, derive(Deserialize))]
 pub struct Response<S: Serialize> {
-    code: u16,
-    message: Option<String>,
-    data: Option<S>,
+    pub code: u16,
+    pub message: Option<String>,
+    pub data: Option<S>,
 }

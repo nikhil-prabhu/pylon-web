@@ -1,7 +1,10 @@
 [package]
 name = "pylon-web"
-version = "1.0.0"
+version = "1.2.0"
 edition = "2021"
+license = "GPL-3.0-only"
+authors = ["Nikhil Prabhu <nikhilprabhu98@gmail.com"]
+categories = ["web-programming", "network-programming"]
 
 [profile.release]
 strip = true
@@ -10,6 +13,8 @@ strip = true
 magic-wormhole = "0.4.0"
 lazy_static = "1.4.0"
 futures = "0.3.21"
+unic-segment = "0.9.0"
+sha256 = "1.0.3"
 
 [dependencies.rocket]
 version = "0.5.0-rc.2"
@@ -18,3 +23,7 @@ features = ["json"]
 [dependencies.serde]
 version = "1.0.137"
 features = ["derive"]
+
+[dev-dependencies.tokio]
+version = "1.18.2"
+features = ["test-util"]

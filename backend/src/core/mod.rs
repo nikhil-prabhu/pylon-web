@@ -11,6 +11,10 @@ use magic_wormhole::{AppConfig, AppID, Code, Wormhole, WormholeError};
 
 use serde::{Deserialize, Serialize};
 
+use unic_segment::Graphemes;
+
+use sha256::digest;
+
 use crate::consts::{APP_ID, APP_VERSION, CODE_LENGTH};
 
 /// A connection that hasn't yet been established.
@@ -38,15 +42,35 @@ impl Error for PylonError {}
 /// # Fields
 ///
 /// * `message` - The message to send (sender mode)/that was received (receiver mode).
-/// * `size` - The size/length of the message.
+/// * `length` - The message length.
 /// * `code`- The wormhole code.
 /// * `time` - The time the message was sent.
+/// * `checksum` - The SHA256 checksum of the message.
 #[derive(Serialize, Deserialize, PartialEq, Default, Debug)]
 pub struct Payload {
     pub message: Option<String>,
-    pub size: Option<usize>,
+    pub length: Option<usize>,
     pub code: String,
     pub time: Option<SystemTime>,
+    pub checksum: Option<String>,
+}
+
+impl From<(&str, &str)> for Payload {
+    /// Creates a Payload from a tuple.
+    ///
+    /// The first element is taken as the payload's message, and the second element is taken as the
+    /// wormhole code.
+    ///
+    /// * `values` - The tuple containing the payload's message and wormhole code.
+    fn from(values: (&str, &str)) -> Self {
+        Self {
+            message: Some(values.0.into()),
+            length: Some(Graphemes::new(values.0).count()),
+            code: values.1.into(),
+            time: Some(SystemTime::now()),
+            checksum: Some(digest(values.0)),
+        }
+    }
 }
 
 /// The Pylon mode.
