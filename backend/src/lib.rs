@@ -6,7 +6,10 @@ extern crate rocket;
 #[macro_use]
 extern crate lazy_static;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+
+#[cfg(debug_assertions)]
+use serde::Deserialize;
 
 pub mod consts;
 pub mod controllers;
