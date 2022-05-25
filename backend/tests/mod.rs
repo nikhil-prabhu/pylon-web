@@ -5,16 +5,7 @@ mod tests {
     use std::error::Error;
     use std::sync::Arc;
 
-    use rocket::http::Status;
-    use rocket::local::asynchronous::Client;
-    use rocket::log::LogLevel;
-    use rocket::Config;
-    use rocket::{routes, uri};
-
     use pylon_web::core::{Mode, Payload, Pylon};
-    use pylon_web::routes;
-
-    use futures::lock::Mutex;
 
     use unic_segment::Graphemes;
 
@@ -32,49 +23,46 @@ mod tests {
         Ok(())
     }
 
-    /// Tests whether the sent payload isn't corrupted during transit.
-    ///
-    /// NOTE: The following code may be hideous to look at. It was hacked together in about half an hour
-    /// under non-sober conditions, and I couldn't be bothered to properly learn async programming. Viewer
-    /// discretion advised.
+    /// Tests whether the payload was unmodified (not corrupted) in transit.
     #[tokio::test]
     async fn test_payload_match() -> Result<(), Box<dyn Error>> {
-        let sender = Pylon::new(Mode::Sender, None).await?;
-        let code = sender.code.clone(); //? Is this clone needed?
-        let msg = "Hello world";
-        let sender_payload: Arc<Mutex<Payload>>;
+        use tokio::sync::mpsc::channel;
 
-        if let Some(code) = code {
-            sender_payload = Arc::new(Mutex::new(Payload::from((msg, code.clone().as_str()))));
+        // Channel to send wormhole code between the sender and receiver threads.
+        let (tx, mut rx) = channel::<String>(128);
 
-            //? Is this copy really needed?
-            let payload_copy = Arc::clone(&sender_payload);
+        // Sender pylon.
+        let mut pylon = Pylon::new(Mode::Sender, None).await.unwrap();
 
-            // Here comes the ugly part.
+        if let Some(code) = pylon.code.take() {
+            // For testing purposes, we can share the entire payload between threads, rather creating a new payload per thread.
+            let base_payload = Arc::new(Payload::from(("Hello world", code.as_str())));
+
+            let payload = Arc::clone(&base_payload);
             let send_handle = tokio::spawn(async move {
-                let sender_payload = Arc::clone(&sender_payload);
-                let sender_payload = sender_payload.lock().await;
-
-                sender.activate(Some(&sender_payload)).await.unwrap();
+                // Send wormhole code to receiver thread and start sending procedure.
+                tx.send(code).await.unwrap();
+                pylon.activate(Some(&payload)).await.unwrap();
             });
+
+            let payload = Arc::clone(&base_payload);
             let recv_handle = tokio::spawn(async move {
-                let receiver = Pylon::new(Mode::Receiver, Some(code.clone()))
-                    .await
-                    .unwrap();
-                let sender_payload = Arc::clone(&payload_copy);
-                let sender_payload = sender_payload.lock().await;
-                let receiver_payload = match receiver.activate(None).await.unwrap() {
+                // Receive wormhole code from sender thread and start receiving procedure.
+                let code = rx.recv().await.unwrap();
+
+                // Receiver pylon.
+                let pylon = Pylon::new(Mode::Receiver, Some(code)).await.unwrap();
+                let received_payload = match pylon.activate(Some(&payload)).await.unwrap() {
                     Some(payload) => payload,
-                    None => Payload::default(),
+                    None => Default::default(),
                 };
 
-                assert_eq!(*sender_payload, receiver_payload);
+                assert_eq!(*payload, received_payload);
             });
 
-            send_handle.await.unwrap(); // Run the payload sender thread.
-            recv_handle.await.unwrap(); // Run the payload receiver thread.
+            send_handle.await.unwrap();
+            recv_handle.await.unwrap();
         } else {
-            // Ideally, this code should be unreachable.
             return Err("Code generation failed".into());
         }
 
@@ -128,7 +116,13 @@ mod tests {
     /// Tests the high-level API endpoints' responses.
     #[tokio::test]
     async fn test_api_endpoints() -> Result<(), Box<dyn Error>> {
-        use pylon_web::Response;
+        use pylon_web::{routes, Response};
+
+        use rocket::http::Status;
+        use rocket::local::asynchronous::Client;
+        use rocket::log::LogLevel;
+        use rocket::Config;
+        use rocket::{routes, uri};
 
         // Turn off Rocket's debug logging, since it would pollute the test's output.
         let conf = Config {
