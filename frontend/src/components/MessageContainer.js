@@ -16,7 +16,7 @@ function MessageContainer() {
     }
 
     function handleChangeCode(e) {
-        e.preventDefault();
+        setCode(e.target.value);
     }
 
     function handleChangeRcv(e) {
@@ -50,12 +50,28 @@ function MessageContainer() {
             toast.success("Message Sent");
         })
         .catch((error) => {
+            toast.error("error while sending message");
             console.error("error while sending message");
         });
     }
 
     function receiveMessage() {
-        setRcvMsg("response");
+        fetch("http://localhost:8000/receive", {
+            method: "POST",
+            body: JSON.stringify({code: codeTxt}),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(respone => respone.json())
+        .then(msg => {
+            setRcvMsg(msg.data.message);
+            toast.success("Message Received");
+        })
+        .catch((error) => {
+            toast.error("Error receiving message");
+            console.error("Error receiving message");
+        });
     }
 
     return(
@@ -66,7 +82,7 @@ function MessageContainer() {
             </div>
             <div>
                 <label>Code: </label>
-                <input type="text" onChange={handleChangeCode} value={codeTxt} readOnly />
+                <input type="text" onChange={handleChangeCode} value={codeTxt} />
                 <br />
                 <label>Message to send: </label>
                 <input type="text" onChange={handleChange} value={message} />
