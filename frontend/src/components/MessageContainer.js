@@ -1,64 +1,81 @@
 import React from "react";
-import { v4 as uuidv4 } from "uuid";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
+
 
 import "./Dashboard.css";
 import Button from "./Button";
 
 function MessageContainer() {
-    const [msgList , setMessageList] = React.useState([]);
     const [message, setMessage] = React.useState('');
+    const [codeTxt, setCode] = React.useState('');
+    const [rcvMsg, setRcvMsg] = React.useState('');
 
     function handleChange(e) {
         setMessage(e.target.value)
     }
 
-    function sendMessage() {
-        // fetch the code for sending message
-        fetch("http://localhost:8000/code", {
+    function handleChangeCode(e) {
+        e.preventDefault();
+    }
+
+    function handleChangeRcv(e) {
+        e.preventDefault();
+    }
+
+    const getCode = async (callback) => {
+        let resp = await fetch("http://localhost:8000/code", {
             method: "GET"
+        });
+        return await resp.json();
+    }
+
+    const send = async () => {
+        let codeJSON = await getCode();
+
+        setCode(codeJSON.data);
+        toast.info("waiting for receiver");
+
+        await fetch("http://localhost:8000/send", {
+            method: "POST",
+            body: JSON.stringify({code: codeJSON.data, message: message}),
+            headers: {
+                "Content-Type": "application/json"
+            }
         })
-        .then(response => response.json())
-        .then(payload => {
-            alert(payload.data);
-            // send message
-            fetch("http://localhost:8000/send", {
-                method: "POST",
-                body: JSON.stringify({code: payload.data}),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
-        })
-        .then(response => response.json())
-        .then(() => {
-            // Add message to list and clear input
-            const newMsgList = msgList.concat({ message, id: uuidv4() });
-            setMessageList(newMsgList);
+        .then(respone => respone.json())
+        .then(data => {
             setMessage("");
+            setCode("");
+            toast.success("Message Sent");
         })
         .catch((error) => {
-            console.error("Error while sending message");
-            alert("Error: Could not send message");
+            console.error("error while sending message");
         });
     }
 
     function receiveMessage() {
+        setRcvMsg("response");
     }
 
     return(
         <div>
             <div className="Dashboard-buttons">
-                <Button text="Send" onClick={sendMessage} />
+                <Button text="Send" onClick={send} />
                 <Button text="Receive" onClick={receiveMessage} />
             </div>
-            <div><input type="text" onChange={handleChange} value={message} /></div>
-            <div className="Message-List">
-                <ul>
-                    {msgList.map((item) => (
-                        <li key={item.id}>{item.message}</li>
-                    ))}
-                </ul>
+            <div>
+                <label>Code: </label>
+                <input type="text" onChange={handleChangeCode} value={codeTxt} readOnly />
+                <br />
+                <label>Message to send: </label>
+                <input type="text" onChange={handleChange} value={message} />
+                <br />
+                <label>Received Message: </label>
+                <input type="text" onChange={handleChangeRcv} value={rcvMsg} readOnly />
+                <br />
             </div>
+            <ToastContainer />
         </div>
     );
 }
