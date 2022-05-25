@@ -24,7 +24,7 @@ pub mod routes;
 #[derive(Serialize)]
 #[cfg_attr(debug_assertions, derive(Deserialize))]
 pub struct Response<S: Serialize> {
-    code: u16,
-    message: Option<String>,
-    data: Option<S>,
+    pub code: u16,
+    pub message: Option<String>,
+    pub data: Option<S>,
 }
