@@ -26,7 +26,7 @@ pub async fn code() -> CustomResponse<String> {
         Ok(code) => Custom(
             Status::Ok,
             Json::from(Response {
-                code: 200,
+                code: Status::Ok.code,
                 message: None,
                 data: Some(code),
             }),
@@ -34,7 +34,7 @@ pub async fn code() -> CustomResponse<String> {
         Err(e) => Custom(
             Status::InternalServerError,
             Json::from(Response {
-                code: 500,
+                code: Status::InternalServerError.code,
                 message: Some(e.to_string()),
                 data: None,
             }),
@@ -56,7 +56,7 @@ pub async fn send(payload: Json<Payload>) -> CustomResponse<Payload> {
         Ok(payload) => Custom(
             Status::Ok,
             Json::from(Response {
-                code: 200,
+                code: Status::Ok.code,
                 message: None,
                 data: Some(payload),
             }),
@@ -64,7 +64,7 @@ pub async fn send(payload: Json<Payload>) -> CustomResponse<Payload> {
         Err(e) => Custom(
             Status::InternalServerError,
             Json::from(Response {
-                code: 500,
+                code: Status::InternalServerError.code,
                 message: Some(e.to_string()),
                 data: None,
             }),
@@ -86,7 +86,7 @@ pub async fn receive(payload: Json<Payload>) -> CustomResponse<Payload> {
         Ok(payload) => Custom(
             Status::Ok,
             Json::from(Response {
-                code: 200,
+                code: Status::Ok.code,
                 message: None,
                 data: Some(payload),
             }),
@@ -94,7 +94,7 @@ pub async fn receive(payload: Json<Payload>) -> CustomResponse<Payload> {
         Err(e) => Custom(
             Status::InternalServerError,
             Json::from(Response {
-                code: 500,
+                code: Status::InternalServerError.code,
                 message: Some(e.to_string()),
                 data: None,
             }),
