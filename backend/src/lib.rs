@@ -18,16 +18,15 @@ pub mod fairings;
 pub mod routes;
 
 /// A structured API response.
-///
-/// # Fields
-///
-/// * `code` - The HTTP status code.
-/// * `message` - An optional message.
-/// * `data` - An optional data payload.
 #[derive(Serialize)]
 #[cfg_attr(debug_assertions, derive(Deserialize))]
 pub struct Response<S: Serialize> {
+    /// The HTTP status code.
     pub code: u16,
+
+    /// An optional message.
     pub message: Option<String>,
+
+    /// An optional data payload.
     pub data: Option<S>,
 }

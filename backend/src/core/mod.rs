@@ -37,21 +37,23 @@ impl fmt::Display for PylonError {
 impl Error for PylonError {}
 
 /// Represents the message payload.
+///
 /// This payload can be sent and received through the encrypted wormhole tunnel.
-///
-/// # Fields
-///
-/// * `message` - The message to send (sender mode)/that was received (receiver mode).
-/// * `length` - The message length.
-/// * `code`- The wormhole code.
-/// * `time` - The time the message was sent.
-/// * `checksum` - The SHA256 checksum of the message.
 #[derive(Serialize, Deserialize, PartialEq, Default, Debug)]
 pub struct Payload {
+    /// The message to send (sender mode)/that was received (receiver mode).
     pub message: Option<String>,
+
+    /// The message length.
     pub length: Option<usize>,
+
+    /// The wormhole code for authentication.
     pub code: String,
+
+    /// The time the message was sent.
     pub time: Option<SystemTime>,
+
+    /// The SHA256 checksum of the message.
     pub checksum: Option<String>,
 }
 
@@ -60,6 +62,8 @@ impl From<(&str, &str)> for Payload {
     ///
     /// The first element is taken as the payload's message, and the second element is taken as the
     /// wormhole code.
+    ///
+    /// # Arguments
     ///
     /// * `values` - The tuple containing the payload's message and wormhole code.
     fn from(values: (&str, &str)) -> Self {
@@ -74,37 +78,31 @@ impl From<(&str, &str)> for Payload {
 }
 
 /// The Pylon mode.
-///
-/// # Variants
-///
-/// * `Sender` - Mode used to send messages.
-/// * `Receiver` - Mode used to receive messages.
 pub enum Mode {
+    /// Mode used to send messages.
     Sender,
+
+    /// Mode used to receive messages.
     Receiver,
 }
 
 /// The Pylon connection mode (Sender/Receiver).
-///
-/// # Variants
-///
-/// * `Sender` - A future sender connection.
-/// * `Receiver` - An established receiver connection.
 #[allow(clippy::large_enum_variant)]
 enum ConnType {
+    /// A future sender connection that must be awaited to fully establish the connection.
     FutureConn(FutureConn),
+
+    /// An established receiver connection.
     EstConn(EstConn),
 }
 
 /// An object that can send or receive messages using an encrypted wormhole tunnel.
 /// Named after the pylons in Terraria.
-///
-/// # Fields
-///
-/// * `conn` - A wormhole connection in sender or receiver mode.
-/// * `code` - The generated wormhole code for PAKE authentication (only populated in Sender mode).
 pub struct Pylon {
+    /// A wormhole connection in either sender or receiver mode.
     conn: ConnType,
+
+    /// The generated wormhole code for PAKE authentication (only populated in Sender mode).
     pub code: Option<String>,
 }
 
