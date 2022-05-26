@@ -29,10 +29,16 @@ function SenderForm(props) {
 		});
 		let respJson = await resp.json();
 		setCode(respJson.data);
-		copyToClipboard(respJson.data).catch(() => {
-			toast.error("Failed to copy code to clipboard");
-		});
-		toast.info("Code copied to clipboard");
+
+		if (resp.status !== 200) {
+			toast.info("Failed to generate code");
+			setCode(null);
+		} else {
+			copyToClipboard(respJson.data).catch(() => {
+				toast.error("Failed to copy code to clipboard");
+			});
+			toast.info("Code copied to clipboard");
+		}
 	}
 
 	const sendMessage = async () => {
