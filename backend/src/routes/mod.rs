@@ -12,6 +12,9 @@ use crate::Response;
 type CustomResponse<T> = Custom<Json<Response<T>>>;
 
 /// Generic index route that indicates whether the service is up and running.
+///
+/// NOTE: Only available in the debug profile.
+#[cfg(debug_assertions)]
 #[get("/")]
 pub fn index() -> &'static str {
     "Hello, world!"
