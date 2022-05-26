@@ -34,11 +34,11 @@ function ReceiverForm(props) {
 			},
 			body: JSON.stringify({ code: code }),
 		});
-		let respJson = await resp.json();
 
 		if (resp.status !== 200) {
 			toast.error("Failed to receive message");
 		} else {
+			let respJson = await resp.json();
 			toast.success("Message received successfully");
 			setMessage(respJson.data.message);
 			setTime(epochToDate(respJson.data.time.secs_since_epoch));
