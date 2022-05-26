@@ -1,5 +1,7 @@
 import "./SenderForm.css";
 
+import axios from "axios";
+
 import React from "react";
 import Loader from "./Loader";
 import Button from "./Button";
@@ -24,39 +26,50 @@ function SenderForm(props) {
 	const genCode = async () => {
 		setCode("Generating...");
 
-		let resp = await fetch("http://localhost:8000/code", {
+		await axios({
 			method: "GET",
-		});
-		let respJson = await resp.json();
-		setCode(respJson.data);
-
-		if (resp.status !== 200) {
-			toast.info("Failed to generate code");
+			url: "http://localhost:8000/code",
+			timeout: 1000 * 30,
+		}).then(resp => {
+			if (resp.status !== 200) {
+				toast.error("Failed to generate code");
+				setCode(null);
+			} else {
+				setCode(resp.data.data);
+				copyToClipboard(resp.data.data).catch(() => {
+					toast.error("Failed to copy code to clipboard");
+				});
+				toast.info("Code copied to clipboard");
+			}
+		}).catch(() => {
+			toast.error("Generating code timed out");
 			setCode(null);
-		} else {
-			copyToClipboard(respJson.data).catch(() => {
-				toast.error("Failed to copy code to clipboard");
-			});
-			toast.info("Code copied to clipboard");
-		}
+		});
 	}
 
 	const sendMessage = async () => {
 		setInProgress(true);
 
-		let resp = await fetch("http://localhost:8000/send", {
+		await axios({
 			method: "POST",
+			url: "http://localhost:8000/send",
+			timeout: 1000 * 30,
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ code: code, message: message }),
-		});
-
-		if (resp.status !== 200) {
-			toast.error("Failed to send message");
-		} else {
-			toast.success("Message sent successfully");
-		}
+			data: {
+				code,
+				message,
+			},
+		}).then(resp => {
+			if (resp.status !== 200) {
+				toast.error("Receiving message failed");
+			} else {
+				toast.success("Message sent successfully");
+			}
+		}).catch(() => {
+			toast.error("Sending message timed out");
+		})
 
 		setCode(null);
 		setInProgress(false);
