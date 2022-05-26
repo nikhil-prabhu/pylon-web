@@ -60,21 +60,20 @@ function SenderForm(props) {
 		return null;
 	}
 
-	if (inProgress) {
-		return (
-			<Loader text={"Sending"} />
-		)
-	}
-
 	return (
 		<div className="SenderForm">
 			<h4 className="SenderForm-label">Code:</h4>
 			<div className="SenderForm-code">{code || "-"}</div>
 			<Button text={"Generate"} onClick={genCode} disabled={code} />
 
-			<h4 className="SenderForm-label">Message:</h4>
-			<textarea className="SenderForm-message" rows={4} cols={50} onChange={getMessage} disabled={!code} />
-			<Button text={"Send"} onClick={sendMessage} disabled={!code} />
+			{inProgress ?
+				<Loader text={"Sending"} />
+				: <div>
+					<h4 className="SenderForm-label">Message:</h4>
+					<textarea className="SenderForm-message" rows={4} cols={50} onChange={getMessage} disabled={!code} />
+					<Button text={"Send"} onClick={sendMessage} disabled={!code} />
+				</div>
+			}
 			<ToastContainer />
 		</div >
 	)
