@@ -122,9 +122,7 @@ impl Pylon {
 
         match mode {
             Mode::Sender => {
-                let conn = Wormhole::connect_without_code(conf, CODE_LENGTH)
-                    .await
-                    .unwrap();
+                let conn = Wormhole::connect_without_code(conf, CODE_LENGTH).await?;
                 let code = conn.0.code;
 
                 Ok(Self {
@@ -134,7 +132,7 @@ impl Pylon {
             }
             Mode::Receiver => {
                 if let Some(code) = code {
-                    let conn = Wormhole::connect_with_code(conf, Code(code)).await.unwrap();
+                    let conn = Wormhole::connect_with_code(conf, Code(code)).await?;
 
                     return Ok(Self {
                         conn: ConnType::EstConn(conn.1),
@@ -163,8 +161,8 @@ impl Pylon {
         match self.conn {
             ConnType::FutureConn(conn) => {
                 if let Some(payload) = payload {
-                    let mut wh = conn.await.unwrap();
-                    wh.send_json(&payload).await.unwrap();
+                    let mut wh = conn.await?;
+                    wh.send_json(&payload).await?;
 
                     Ok(None)
                 } else {
@@ -174,7 +172,7 @@ impl Pylon {
                 }
             }
             ConnType::EstConn(mut conn) => {
-                let payload = conn.receive_json().await.unwrap().unwrap();
+                let payload = conn.receive_json().await??;
 
                 Ok(Some(payload))
             }

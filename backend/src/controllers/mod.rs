@@ -17,13 +17,13 @@ lazy_static! {
 }
 
 async fn get_pylon() -> Result<Pylon, Box<dyn Error>> {
-    Ok(Pylon::new(Mode::Sender, None).await.unwrap())
+    Pylon::new(Mode::Sender, None).await
 }
 
 /// Generates a wormhole code.
 /// The newly created FutureConn will be pushed into a global Pylon map to be re-used later.
 pub async fn gen_code() -> Result<String, Box<dyn Error>> {
-    let pylon = get_pylon().await.unwrap();
+    let pylon = get_pylon().await?;
     let code = pylon.code.clone();
 
     if let Some(code) = code {
@@ -53,7 +53,7 @@ pub async fn send_payload(mut payload: Payload) -> Result<Payload, Box<dyn Error
             payload.checksum = Some(digest(message));
         }
 
-        pylon.activate(Some(&payload)).await.unwrap();
+        pylon.activate(Some(&payload)).await?;
     }
 
     Ok(payload)
@@ -65,8 +65,8 @@ pub async fn send_payload(mut payload: Payload) -> Result<Payload, Box<dyn Error
 ///
 /// * `code` - The wormhole code to use for PAKE authentication.
 pub async fn receive_payload(code: String) -> Result<Payload, Box<dyn Error>> {
-    let pylon = Pylon::new(Mode::Receiver, Some(code)).await.unwrap();
-    let payload = pylon.activate(None).await.unwrap();
+    let pylon = Pylon::new(Mode::Receiver, Some(code)).await?;
+    let payload = pylon.activate(None).await?;
 
     if let Some(payload) = payload {
         Ok(payload)
