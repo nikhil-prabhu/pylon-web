@@ -71,7 +71,7 @@ function ReceiverForm(props) {
 
 			<h4 className="ReceiverForm-label">Message:</h4>
 			<div className="ReceiverForm-message">{message}</div>
-			<h6 className="ReceiverForm-timestamp">Received at: {time || ""}</h6>
+			<h6 className="ReceiverForm-timestamp">Message sent at: {time || ""}</h6>
 			<ToastContainer />
 		</div>
 	)
