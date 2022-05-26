@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.SenderForm {
+	padding: 3em;
+}
+
+.SenderForm-label {
+	text-align: left;
+	color: #333333;
+}
+
+.SenderForm-message {
+	width: 100%;
+	resize: vertical;
+}
+
+.SenderForm-code {
+	background-color: #eee;
+	width: 60%;
+	max-width: 90%;
+	margin: auto;
+	padding: 0.8em;
+	font-family: 'Press Start 2P', monospace;
+}
