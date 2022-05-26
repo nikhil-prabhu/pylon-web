@@ -76,8 +76,8 @@ function SenderForm(props) {
 				<Loader text={"Sending"} />
 				: <div>
 					<h4 className="SenderForm-label">Message:</h4>
-					<textarea className="SenderForm-message" rows={4} cols={50} onChange={getMessage} disabled={!code} />
-					<Button text={"Send"} onClick={sendMessage} disabled={!code} />
+					<textarea className="SenderForm-message" rows={4} cols={50} onChange={getMessage} disabled={!code || (code === "Generating...")} />
+					<Button text={"Send"} onClick={sendMessage} disabled={!code || (code === "Generating...")} />
 				</div>
 			}
 			<ToastContainer />
