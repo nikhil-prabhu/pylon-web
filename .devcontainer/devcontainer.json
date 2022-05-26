@@ -28,7 +28,7 @@
   ],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  // "forwardPorts": [],
+  "forwardPorts": [3000, 8000],
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "cd frontend && npm install",
@@ -38,5 +38,14 @@
   "features": {
     "git": "os-provided",
     "node": "lts"
-  }
+},
+
+"portsAttributes": {
+	"3000": {
+		"label": "React development server"
+	},
+	"8000": {
+		"label": "Rust Rocket API server"
+	}
+}
 }
