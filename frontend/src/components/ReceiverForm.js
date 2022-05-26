@@ -4,10 +4,12 @@ import React from "react";
 import Button from "./Button";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
+import Loader from "./Loader";
 
 function ReceiverForm(props) {
 	const [code, setCode] = React.useState();
 	const [message, setMessage] = React.useState();
+	const [inProgress, setInProgress] = React.useState();
 
 	const gotCode = (e) => {
 		setCode(e.target.value);
@@ -15,6 +17,8 @@ function ReceiverForm(props) {
 
 	const receiveMessage = async () => {
 		setMessage(null);
+		setInProgress(true);
+
 		let resp = await fetch("http://localhost:8000/receive", {
 			method: "POST",
 			headers: {
@@ -30,10 +34,18 @@ function ReceiverForm(props) {
 			toast.success("Message received successfully");
 			setMessage(respJson.data.message);
 		}
+
+		setInProgress(false);
 	}
 
 	if (!props.show) {
 		return null;
+	}
+
+	if (inProgress) {
+		return (
+			<Loader text={"Receiving"} />
+		)
 	}
 
 	return (

@@ -1,6 +1,7 @@
 import "./SenderForm.css";
 
 import React from "react";
+import Loader from "./Loader";
 import Button from "./Button";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
@@ -14,13 +15,15 @@ const copyToClipboard = str => {
 function SenderForm(props) {
 	const [code, setCode] = React.useState();
 	const [message, setMessage] = React.useState();
+	const [inProgress, setInProgress] = React.useState();
 
 	const getMessage = (e) => {
 		setMessage(e.target.value);
 	}
 
-
 	const genCode = async () => {
+		setCode("Generating...");
+
 		let resp = await fetch("http://localhost:8000/code", {
 			method: "GET",
 		});
@@ -33,6 +36,8 @@ function SenderForm(props) {
 	}
 
 	const sendMessage = async () => {
+		setInProgress(true);
+
 		let resp = await fetch("http://localhost:8000/send", {
 			method: "POST",
 			headers: {
@@ -43,17 +48,23 @@ function SenderForm(props) {
 
 		if (resp.status !== 200) {
 			toast.error("Failed to send message");
-			setCode(null);
 		} else {
 			toast.success("Message sent successfully");
-			setCode(null);
 		}
+
+		setCode(null);
+		setInProgress(false);
 	}
 
 	if (!props.show) {
 		return null;
 	}
 
+	if (inProgress) {
+		return (
+			<Loader text={"Sending"} />
+		)
+	}
 
 	return (
 		<div className="SenderForm">
