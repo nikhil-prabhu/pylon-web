@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.ReceiverForm {
+	padding: 3em;
+}
+
+.ReceiverForm-label {
+	text-align: left;
+	color: #333333;
+}
+
+.ReceiverForm-message {
+	width: 100%;
+	background-color: #eee;
+	padding: 0.8em;
+}
+
+.ReceiverForm-code {
+	width: 60%;
+	max-width: 90%;
+	margin: auto;
+	padding: 0.8em;
+	font-family: 'Press Start 2P', monospace;
+}

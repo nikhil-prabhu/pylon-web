@@ -15,3 +15,7 @@
 .Button:hover {
 	background-color: #007f6c;
 }
+
+.Button:disabled {
+	background-color: #eee;
+}
