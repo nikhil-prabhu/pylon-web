@@ -24,3 +24,8 @@
 	padding: 0.8em;
 	font-family: 'Press Start 2P', monospace;
 }
+
+.ReceiverForm-timestamp {
+	color: #333;
+	text-align: right;
+}

@@ -9,7 +9,15 @@ import Loader from "./Loader";
 function ReceiverForm(props) {
 	const [code, setCode] = React.useState();
 	const [message, setMessage] = React.useState();
+	const [time, setTime] = React.useState();
 	const [inProgress, setInProgress] = React.useState();
+
+	const epochToDate = (epochSecs) => {
+		let date = new Date(0);
+		date.setUTCSeconds(epochSecs);
+
+		return date.toLocaleString();
+	}
 
 	const gotCode = (e) => {
 		setCode(e.target.value);
@@ -33,6 +41,7 @@ function ReceiverForm(props) {
 		} else {
 			toast.success("Message received successfully");
 			setMessage(respJson.data.message);
+			setTime(epochToDate(respJson.data.time.secs_since_epoch));
 		}
 
 		setInProgress(false);
@@ -56,6 +65,7 @@ function ReceiverForm(props) {
 
 			<h4 className="ReceiverForm-label">Message:</h4>
 			<div className="ReceiverForm-message">{message}</div>
+			<h6 className="ReceiverForm-timestamp">Received at: {time || ""}</h6>
 			<ToastContainer />
 		</div>
 	)
