@@ -29,5 +29,4 @@ WORKDIR /app
 COPY --from=backend /backend/target/release/pylon-web .
 COPY --from=frontend /frontend/build ./static
 ENV PYLON_STATIC_DIR=/app/static
-EXPOSE 8000
 CMD ["./pylon-web"]
