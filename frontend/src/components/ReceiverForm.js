@@ -30,7 +30,7 @@ function ReceiverForm(props) {
 
 		await axios({
 			method: "POST",
-			url: "http://localhost:8000/receive",
+			url: "http://localhost:8080/receive",
 			timeout: 1000 * 30,
 			headers: {
 				"Content-Type": "application/json",
