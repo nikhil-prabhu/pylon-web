@@ -1,7 +1,6 @@
 //! API route controllers.
 
 use std::collections::HashMap;
-use std::error::Error;
 use std::time::SystemTime;
 
 use futures::lock::Mutex;

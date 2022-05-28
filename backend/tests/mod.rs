@@ -2,10 +2,10 @@
 
 #[cfg(test)]
 mod tests {
-    use std::error::Error;
     use std::sync::Arc;
 
     use pylon_web::core::{Mode, Payload, Pylon};
+    use pylon_web::ThreadSafeError;
 
     use unic_segment::Graphemes;
 
@@ -13,7 +13,7 @@ mod tests {
 
     /// Tests whether the Pylon can generate a code when run in Sender mode.
     #[tokio::test]
-    async fn test_code_gen() -> Result<(), Box<dyn Error>> {
+    async fn test_code_gen() -> Result<(), ThreadSafeError> {
         let pylon = Pylon::new(Mode::Sender, None).await?;
 
         if pylon.code.is_none() {
@@ -25,14 +25,14 @@ mod tests {
 
     /// Tests whether the payload was unmodified (not corrupted) in transit.
     #[tokio::test]
-    async fn test_payload_match() -> Result<(), Box<dyn Error>> {
+    async fn test_payload_match() -> Result<(), ThreadSafeError> {
         use tokio::sync::mpsc::channel;
 
         // Channel to send wormhole code between the sender and receiver threads.
         let (tx, mut rx) = channel::<String>(128);
 
         // Sender pylon.
-        let mut pylon = Pylon::new(Mode::Sender, None).await.unwrap();
+        let mut pylon = Pylon::new(Mode::Sender, None).await?;
 
         if let Some(code) = pylon.code.take() {
             // For testing purposes, we can share the entire payload between threads, rather creating a new payload per thread.
@@ -41,27 +41,31 @@ mod tests {
             let payload = Arc::clone(&base_payload);
             let send_handle = tokio::spawn(async move {
                 // Send wormhole code to receiver thread and start sending procedure.
-                tx.send(code).await.unwrap();
-                pylon.activate(Some(&payload)).await.unwrap();
+                tx.send(code).await?;
+                pylon.activate(Some(&payload)).await?;
+
+                Ok::<(), ThreadSafeError>(())
             });
 
             let payload = Arc::clone(&base_payload);
             let recv_handle = tokio::spawn(async move {
                 // Receive wormhole code from sender thread and start receiving procedure.
-                let code = rx.recv().await.unwrap();
+                let code = rx.recv().await.ok_or("Empty code received on channel")?;
 
                 // Receiver pylon.
-                let pylon = Pylon::new(Mode::Receiver, Some(code)).await.unwrap();
-                let received_payload = match pylon.activate(Some(&payload)).await.unwrap() {
+                let pylon = Pylon::new(Mode::Receiver, Some(code)).await?;
+                let received_payload = match pylon.activate(Some(&payload)).await? {
                     Some(payload) => payload,
                     None => Default::default(),
                 };
 
                 assert_eq!(*payload, received_payload);
+
+                Ok::<(), ThreadSafeError>(())
             });
 
-            send_handle.await.unwrap();
-            recv_handle.await.unwrap();
+            send_handle.await??;
+            recv_handle.await??;
         } else {
             return Err("Code generation failed".into());
         }
@@ -115,7 +119,7 @@ mod tests {
 
     /// Tests the high-level API endpoints' responses.
     #[tokio::test]
-    async fn test_api_endpoints() -> Result<(), Box<dyn Error>> {
+    async fn test_api_endpoints() -> Result<(), ThreadSafeError> {
         use pylon_web::{routes, Response};
 
         use rocket::http::Status;
@@ -186,8 +190,8 @@ mod tests {
                     assert_ne!(resp.status(), Status::Ok);
                 });
 
-                send_handle.await.unwrap();
-                recv_handle.await.unwrap();
+                send_handle.await?;
+                recv_handle.await?;
             } else {
                 return Err("Code generation failed".into());
             }
