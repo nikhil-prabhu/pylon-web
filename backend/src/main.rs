@@ -17,6 +17,13 @@ use std::env;
 #[cfg(not(debug_assertions))]
 #[launch]
 fn rocket() -> _ {
+    use std::net::{IpAddr, Ipv4Addr};
+
+    let address = match env::var("ROCKET_ADDRESS") {
+        Ok(addr) => addr.parse::<Ipv4Addr>().unwrap(),
+        Err(_) => "127.0.0.1".parse::<Ipv4Addr>().unwrap(),
+    };
+    let address = IpAddr::from(address);
     let port = match env::var("PORT") {
         Ok(port) => port.parse::<u16>().expect("could not parse port value"),
         Err(_) => 8080,
@@ -26,6 +33,7 @@ fn rocket() -> _ {
     rocket::build()
         .configure(Config {
             log_level: LogLevel::Normal,
+            address,
             port,
             ..Config::release_default()
         })
@@ -38,12 +46,20 @@ fn rocket() -> _ {
 #[cfg(debug_assertions)]
 #[launch]
 fn rocket() -> _ {
+    use std::net::{IpAddr, Ipv4Addr};
+
+    let address = match env::var("ROCKET_ADDRESS") {
+        Ok(addr) => addr.parse::<Ipv4Addr>().unwrap(),
+        Err(_) => "127.0.0.1".parse::<Ipv4Addr>().unwrap(),
+    };
+    let address = IpAddr::from(address);
     let port = match env::var("PORT") {
         Ok(port) => port.parse::<u16>().expect("could not parse port value"),
         Err(_) => 8080,
     };
     rocket::build()
         .configure(Config {
+            address,
             port,
             ..Config::debug_default()
         })
