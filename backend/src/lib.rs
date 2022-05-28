@@ -6,6 +6,8 @@ extern crate rocket;
 #[macro_use]
 extern crate lazy_static;
 
+use std::error::Error;
+
 use serde::{Deserialize, Serialize};
 
 pub mod consts;
@@ -26,3 +28,6 @@ pub struct Response<S: Serialize> {
     /// An optional data payload.
     pub data: Option<S>,
 }
+
+/// A thread-safe error.
+pub type ThreadSafeError = Box<dyn Error + Send + Sync>;

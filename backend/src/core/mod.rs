@@ -16,6 +16,7 @@ use unic_segment::Graphemes;
 use sha256::digest;
 
 use crate::consts::{APP_ID, APP_VERSION, CODE_LENGTH};
+use crate::ThreadSafeError;
 
 /// A connection that hasn't yet been established.
 /// It must be awaited to perform the client-client handshake and establish the connection.
@@ -113,7 +114,7 @@ impl Pylon {
     ///
     /// * `mode` - The Pylon mode (Sender/Receiver).
     /// * `code` - The wormhole code for PAKE authentication (only required in Receiver mode).
-    pub async fn new(mode: Mode, code: Option<String>) -> Result<Self, Box<dyn Error>> {
+    pub async fn new(mode: Mode, code: Option<String>) -> Result<Self, ThreadSafeError> {
         let conf = AppConfig {
             id: AppID(Cow::from(APP_ID)),
             rendezvous_url: Cow::from(DEFAULT_RENDEZVOUS_SERVER),
@@ -155,7 +156,7 @@ impl Pylon {
     pub async fn activate(
         self,
         payload: Option<&Payload>,
-    ) -> Result<Option<Payload>, Box<dyn Error>> {
+    ) -> Result<Option<Payload>, ThreadSafeError> {
         let payload = payload;
 
         match self.conn {

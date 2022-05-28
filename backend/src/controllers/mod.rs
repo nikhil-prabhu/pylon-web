@@ -11,18 +11,19 @@ use unic_segment::Graphemes;
 use sha256::digest;
 
 use crate::core::{Mode, Payload, Pylon, PylonError};
+use crate::ThreadSafeError;
 
 lazy_static! {
     static ref PYLON_MAP: Mutex<HashMap<String, Pylon>> = Mutex::new(HashMap::new());
 }
 
-async fn get_pylon() -> Result<Pylon, Box<dyn Error>> {
+async fn get_pylon() -> Result<Pylon, ThreadSafeError> {
     Pylon::new(Mode::Sender, None).await
 }
 
 /// Generates a wormhole code.
 /// The newly created FutureConn will be pushed into a global Pylon map to be re-used later.
-pub async fn gen_code() -> Result<String, Box<dyn Error>> {
+pub async fn gen_code() -> Result<String, ThreadSafeError> {
     let pylon = get_pylon().await?;
     let code = pylon.code.clone();
 
@@ -41,7 +42,7 @@ pub async fn gen_code() -> Result<String, Box<dyn Error>> {
 /// # Arguments
 ///
 /// * `payload` - The payload to send.
-pub async fn send_payload(mut payload: Payload) -> Result<Payload, Box<dyn Error>> {
+pub async fn send_payload(mut payload: Payload) -> Result<Payload, ThreadSafeError> {
     let mut pylon_map = PYLON_MAP.lock().await;
     let pylon = pylon_map.remove(&payload.code);
 
@@ -64,7 +65,7 @@ pub async fn send_payload(mut payload: Payload) -> Result<Payload, Box<dyn Error
 /// # Arguments
 ///
 /// * `code` - The wormhole code to use for PAKE authentication.
-pub async fn receive_payload(code: String) -> Result<Payload, Box<dyn Error>> {
+pub async fn receive_payload(code: String) -> Result<Payload, ThreadSafeError> {
     let pylon = Pylon::new(Mode::Receiver, Some(code)).await?;
     let payload = pylon.activate(None).await?;
 
