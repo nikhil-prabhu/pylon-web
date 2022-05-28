@@ -32,7 +32,7 @@ function ReceiverForm(props) {
 
 		await axios({
 			method: "POST",
-			url: `https://${addr}:8080/receive`,
+			url: `https://${addr}:443/receive`,
 			timeout: 1000 * 30,
 			headers: {
 				"Content-Type": "application/json",

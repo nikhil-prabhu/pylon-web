@@ -30,7 +30,7 @@ function SenderForm(props) {
 
 		await axios({
 			method: "GET",
-			url: `https://${addr}:8080/code`,
+			url: `https://${addr}:443/code`,
 			timeout: 1000 * 30,
 		}).then(resp => {
 			if (resp.status !== 200) {
@@ -56,7 +56,7 @@ function SenderForm(props) {
 
 		await axios({
 			method: "POST",
-			url: `https://${addr}:8080/send`,
+			url: `https://${addr}:443/send`,
 			timeout: 1000 * 30,
 			headers: {
 				"Content-Type": "application/json",
