@@ -29,5 +29,6 @@ WORKDIR /app
 COPY --from=backend /backend/target/release/pylon-web .
 COPY --from=frontend /frontend/build ./static
 ENV PYLON_STATIC_DIR=/app/static
+ENV ROCKET_ADDRESS="0.0.0.0"
 EXPOSE 8080
 CMD ["./pylon-web"]
