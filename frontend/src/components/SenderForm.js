@@ -26,11 +26,11 @@ function SenderForm(props) {
 	const genCode = async () => {
 		setCode("Generating...");
 
-		let addr = "https://pylon-web-osl65qagha-uc.a.run.app";
+		let addr = "pylon-web-osl65qagha-uc.a.run.app";
 
 		await axios({
 			method: "GET",
-			url: `http://${addr}:8080/code`,
+			url: `https://${addr}:8080/code`,
 			timeout: 1000 * 30,
 		}).then(resp => {
 			if (resp.status !== 200) {
@@ -52,11 +52,11 @@ function SenderForm(props) {
 	const sendMessage = async () => {
 		setInProgress(true);
 
-		let addr = "https://pylon-web-osl65qagha-uc.a.run.app";
+		let addr = "pylon-web-osl65qagha-uc.a.run.app";
 
 		await axios({
 			method: "POST",
-			url: `http://${addr}:8080/send`,
+			url: `https://${addr}:8080/send`,
 			timeout: 1000 * 30,
 			headers: {
 				"Content-Type": "application/json",
