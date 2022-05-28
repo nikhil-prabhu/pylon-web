@@ -28,9 +28,11 @@ function ReceiverForm(props) {
 		setMessage(null);
 		setInProgress(true);
 
+		let addr = "https://pylon-web-osl65qagha-uc.a.run.app";
+
 		await axios({
 			method: "POST",
-			url: "http://localhost:8080/receive",
+			url: `http://${addr}:8080/receive`,
 			timeout: 1000 * 30,
 			headers: {
 				"Content-Type": "application/json",
