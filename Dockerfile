@@ -8,7 +8,7 @@ FROM rust:1.60-bullseye AS backend
 WORKDIR /backend
 COPY ./backend .
 
-RUN cargo test --release --test mod && cargo build --release
+RUN cargo build --release
 
 # -----------------------------------------------------------------------------
 # Build static React frontend.
