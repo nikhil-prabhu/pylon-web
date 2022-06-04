@@ -3,4 +3,4 @@ FROM rust:1.60-bullseye
 WORKDIR /test
 COPY ./backend .
 
-RUN cargo test --test mod
+RUN cargo test --release --test mod
